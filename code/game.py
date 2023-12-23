@@ -1,4 +1,3 @@
-# has to make queen movement on line 108
 import pygame
 from sys import exit
 from copy import deepcopy
@@ -27,7 +26,9 @@ class Game:
         self.has_to_take = None
 
         self.i = 0
-    
+        self.logs = [[(0, 0), 'E']]
+        self.clicks_on_same = 0
+
     def can_pawn_in_given_direction(self, type_of_piece: str, row: int, col: int, direction: str):
         counter = 0
         current_row = row
@@ -124,11 +125,14 @@ class Game:
         def draw_moving_possibilities_for_queen_in_given_direction(start_row, end_row, start_col, end_col, step_row, step_col):
             current_col = start_col
             for current_row in range(start_row, end_row, step_row):
-                print("row ", current_row, "col ", current_col)
+                print("row ", current_row, "col ", current_col, "piece_type ", self.piece_map[6][1] if current_col < LIST_SIZE else "")
 
                 if current_col < LIST_SIZE and self.piece_map[current_row][current_col] == 'E': self.piece_map[current_row][current_col] = 'm' # and col >= 0 and row >= 0
                 # elif self.piece_map[current_row][current_col] in ['w', 'W', 'r', 'R']: return
-                else: return
+                else: 
+                    print("-------", "")
+                    return
+                    
                 current_col += step_col
 
         
@@ -225,10 +229,10 @@ class Game:
         # the whole logic:
         if type_of_piece == player_pawn: # so we are selecting the pawn
             if able_to_attack == [[], []]: self.draw_moving_possibilities_for_pawn(actuall_row, col) # if nothing can attack, then just move
-            elif ((row, col)) in able_to_attack[0] and (self.has_to_take == None or self.has_to_take==(row, col)): self.draw_attacking_possibilities_for_pawn(row, col, able_to_attack, enemy_pieces) # if can attack
+            elif ((row, col)) in able_to_attack[0] and (self.has_to_take == None or self.has_to_take == (row, col)): self.draw_attacking_possibilities_for_pawn(row, col, able_to_attack, enemy_pieces) # if can attack
         
-        elif picked_type == player_queen: # so we are selecting queen
-            if able_to_attack == [[], []]: self.draw_moving_possibilities_for_queen(row, col)
+        elif type_of_piece == player_queen: # so we are selecting queen
+            if able_to_attack == [[], []]:  self.draw_moving_possibilities_for_queen(row, col)
 
         elif type_of_piece == 'm': # if we are changing location of selected piece
             if picked_type == player_pawn: # so well, if we are doing something with a pawn to get to one of possible squares
@@ -240,15 +244,23 @@ class Game:
                 self.piece_map[picked_row][picked_col] = 'E' # cleaning the square, where attacking piece is
                 self.clear_enemy_pawn_after_taking(row, picked_row, col, picked_col, player_pawn)
 
+        # if you click on the same piece twice, the marked points should disappear
+        if picked == self.logs[-1]: self.clicks_on_same += 1
+        else: self.clicks_on_same = 0
+
+        if self.clicks_on_same % 2 == 1: self.board.clear_marked(self.piece_map)
+
+        self.logs.append([(row, col), type_of_piece])
+
     def swap_players(self): self.white_on_turn = False if self.white_on_turn else True
 
     def game_loop(self):
-        picked = [(0, 1), 'E'] # just to fix tis error that sayin' "picked is not assigned"(or sth like that i don't remember lol) when tranna pick empty square at move first
+        picked = [(0, 2), 'E'] # just to fix tis error that sayin' "picked is not assigned" (or sth like that) when trynna pick nothing at move first
         self.board.display(self.piece_map)
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: exit()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     # cleaning board
                     self.display_surface.fill(BLACK_SQUARE_COLOR)
 
@@ -265,8 +277,10 @@ class Game:
                     # getting what piece has been choosen
                     if self.white_on_turn and type_of_piece in ['w', 'W'] or not self.white_on_turn and type_of_piece in ['r', 'R']: 
                         picked = [(row, col), type_of_piece] 
-      
-                    # and well, moving the picked piece
+
+                    
+
+                    # and well, reacting to click
                     self.react_to_player_input(row, col, type_of_piece, picked)
 
                     # drawing all pieces and the board

@@ -3,7 +3,7 @@ from square import Square
 from piece import Piece
 
 class Board:
-    'Board class which has to draw the actuall board and all the pieces'
+    'Board class which has to draw the actuall board and all the pieces on it'
     def __init__(self, display_surface):
         self.display_surface = display_surface
 
