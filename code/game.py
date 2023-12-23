@@ -100,7 +100,7 @@ class Game:
                     # *
                     # - The end of print, I will delete it later on
                     # *
-                    if attacks == maximum and attacks!=0: 
+                    if attacks == maximum and attacks != 0: 
                         output_cords.append((row, col)) 
                         attack_squares.append(attack_square)
                     elif attacks > maximum: 
@@ -116,8 +116,33 @@ class Game:
         return [output_cords, attack_squares]
 
     def draw_moving_possibilities_for_pawn(self, row, col):
-        if col-1 >= 0 and self.piece_map[row][col-1] == 'E':  self.piece_map[row][col-1] = 'm' # im checking here if col-1 in order to not make piece from 0 row teleporting lol
+        if col-1 >= 0 and self.piece_map[row][col-1] == 'E':  self.piece_map[row][col-1] = 'm' # im checking here if col-1 in order to prevent piece from row 0 from teleporting lol
         if col+1 < LIST_SIZE and self.piece_map[row][col+1] == 'E': self.piece_map[row][col+1] = 'm'
+
+    def draw_moving_possibilities_for_queen(self, row, col):
+
+        def draw_moving_possibilities_for_queen_in_given_direction(start_row, end_row, start_col, end_col, step_row, step_col):
+            current_col = start_col
+            for current_row in range(start_row, end_row, step_row):
+                print("row ", current_row, "col ", current_col)
+
+                if current_col < LIST_SIZE and self.piece_map[current_row][current_col] == 'E': self.piece_map[current_row][current_col] = 'm' # and col >= 0 and row >= 0
+                # elif self.piece_map[current_row][current_col] in ['w', 'W', 'r', 'R']: return
+                else: return
+                current_col += step_col
+
+        
+        # bottom right direction
+        if (row < LIST_SIZE-1 and col < LIST_SIZE-1): draw_moving_possibilities_for_queen_in_given_direction(row+1, LIST_SIZE-row, col+1, LIST_SIZE-col, 1, 1)
+        
+        # bottom left direction
+        if (row < LIST_SIZE-1 and col > 0): draw_moving_possibilities_for_queen_in_given_direction(row+1, LIST_SIZE-row, col-1, 0, 1, -1)
+        
+        # top right direction        
+        if (row > 0 and col < LIST_SIZE-1): draw_moving_possibilities_for_queen_in_given_direction(row-1, 0, col+1, LIST_SIZE-1, -1, 1)
+        
+        # top left direction
+        if (row > 0 and col > 0): draw_moving_possibilities_for_queen_in_given_direction(row-1, 0, col-1, 0, -1, -1)
     
     def draw_attacking_possibilities_for_pawn(self, row: int, col: int, able_to_attack: list, enemy_pieces: list):
         if row >= 2 and col >= 2 and self.piece_map[row-1][col-1] in enemy_pieces and self.piece_map[row-2][col-2] == 'E' and [(row-2, col-2)] in able_to_attack[1]: self.piece_map[row-2][col-2] = 'm'
@@ -177,8 +202,8 @@ class Game:
             enemy_queen = 'R'
             actuall_row = picked_row - 1
             queen_row = 0
-            before_queen_row = queen_row+1
-            take_before_queen_row = queen_row+2
+            before_queen_row = queen_row + 1
+            take_before_queen_row = queen_row + 2
         else: 
             player_pawn = 'r'
             player_queen = 'R'
@@ -201,9 +226,10 @@ class Game:
         if type_of_piece == player_pawn: # so we are selecting the pawn
             if able_to_attack == [[], []]: self.draw_moving_possibilities_for_pawn(actuall_row, col) # if nothing can attack, then just move
             elif ((row, col)) in able_to_attack[0] and (self.has_to_take == None or self.has_to_take==(row, col)): self.draw_attacking_possibilities_for_pawn(row, col, able_to_attack, enemy_pieces) # if can attack
+        
         elif picked_type == player_queen: # so we are selecting queen
-            # queen movement
-            pass
+            if able_to_attack == [[], []]: self.draw_moving_possibilities_for_queen(row, col)
+
         elif type_of_piece == 'm': # if we are changing location of selected piece
             if picked_type == player_pawn: # so well, if we are doing something with a pawn to get to one of possible squares
                 if actuall_row == row and (picked_col-1 == col or picked_col+1 == col): self.move_pawn(row, picked_row, col, picked_col, player_pawn, player_queen, queen_row) # mving the pawn if cannot attack
@@ -220,7 +246,6 @@ class Game:
         picked = [(0, 1), 'E'] # just to fix tis error that sayin' "picked is not assigned"(or sth like that i don't remember lol) when tranna pick empty square at move first
         self.board.display(self.piece_map)
         while True:
-            self.run_game()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:

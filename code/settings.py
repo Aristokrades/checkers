@@ -1,6 +1,6 @@
 from math import ceil
 
-FPS = 69
+FPS = 32
 
 VERTICAL_OFFSET = 0
 WIN_WIDTH, WIN_HEIGHT = 750, 750
@@ -13,12 +13,12 @@ WHITE_SQUARE_COLOR = '#F5E6BF'
 BLACK_SQUARE_COLOR = '#66443A'
 
 BOARD = [
-    ['E', 'r', 'E', 'r', 'E', 'r', 'E', 'r',],
-    ['r', 'E', 'r', 'E', 'r', 'E', 'E', 'E',],
-    ['E', 'r', 'E', 'r', 'E', 'r', 'E', 'r',],
+    ['E', 'r', 'E', 'r', 'E', 'W', 'E', 'W',],
+    ['r', 'E', 'r', 'E', 'E', 'E', 'E', 'E',],
+    ['E', 'r', 'E', 'E', 'E', 'W', 'E', 'r',],
     ['E', 'E', 'E', 'E', 'E', 'E', 'E', 'E',],
-    ['E', 'r', 'E', 'r', 'E', 'E', 'E', 'E',],
-    ['w', 'E', 'w', 'E', 'w', 'E', 'w', 'E',],
-    ['E', 'w', 'E', 'r', 'E', 'w', 'E', 'w',],
-    ['w', 'E', 'w', 'E', 'E', 'E', 'w', 'E',],
+    ['E', 'E', 'E', 'E', 'E', 'E', 'E', 'E',],
+    ['E', 'E', 'E', 'E', 'w', 'E', 'w', 'E',],
+    ['E', 'E', 'E', 'w', 'E', 'w', 'E', 'w',],
+    ['E', 'E', 'w', 'E', 'E', 'E', 'w', 'E',],
 ]
